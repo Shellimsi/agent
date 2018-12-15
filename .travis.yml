@@ -1,0 +1,13 @@
+language: go
+
+go:
+  - "1.8.x"
+  - "1.10.x"
+  - master
+
+jobs:
+  include:
+    - stage: test
+      name: "Run test"   
+      script:
+        - make test
