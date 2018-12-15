@@ -1,8 +1,6 @@
 language: go
 
 go:
-  - "1.8.x"
-  - "1.10.x"
   - master
 
 jobs:
@@ -10,4 +8,4 @@ jobs:
     - stage: test
       name: "Run test"   
       script:
-        - make test
+        - go test -v
