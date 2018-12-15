@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func test(conn net.Conn) error {
+func newShell(conn net.Conn) error {
 	// Create arbitrary command.
 	c := exec.Command("bash")
 
@@ -57,7 +57,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := test(conn); err != nil {
+	if err := newShell(conn); err != nil {
 		log.Fatal(err)
 	}
 }

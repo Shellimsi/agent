@@ -1,6 +1,6 @@
 # Shellimsi Agent
 
-This app is agent runs on background to start new terminal session on the operation system. This agent connect to `Shellimsi Server` to match to a `Shellimsi Client`.
+This app is agent runs on background to start new terminal session on the operation system. This agent connects to `Shellimsi Server` to match a `Shellimsi Client`.
 
 ## Dependencies
 
