@@ -3,7 +3,9 @@ module github.com/shellimsi/agent
 require (
 	cloud.google.com/go v0.34.0 // indirect
 	github.com/golang/mock v1.2.0 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.3
+	github.com/satori/go.uuid v1.2.0
 	github.com/shellimsi/proto v0.0.4
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
 	golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1 // indirect
@@ -15,5 +17,6 @@ require (
 	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20181221175505-bd9b4fb69e2f // indirect
 	google.golang.org/grpc v1.17.0
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	honnef.co/go/tools v0.0.0-20180920025451-e3ad64cb4ed3 // indirect
 )
