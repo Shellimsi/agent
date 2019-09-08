@@ -41,9 +41,15 @@ func (c *ConnectionHub) Read(b []byte) (n int, err error) {
 	res, err := c.connOnHub.Read(ctx, &hub.ReadRequest{
 		Size: rSize,
 	}, nil)
+
+	if err != nil {
+		panic(err)
+	}
+
 	switch res.GetErr() {
 	case hub.ConnectionErr_EOF:
-		return 0, io.EOF
+
+		return int(res.GetSize()), io.EOF
 	case hub.ConnectionErr_SHORTWRITE:
 		return 0, io.ErrShortWrite
 	case hub.ConnectionErr_UNEXPECTEDEOF:
@@ -52,6 +58,7 @@ func (c *ConnectionHub) Read(b []byte) (n int, err error) {
 		return 0, io.ErrClosedPipe
 	}
 	n = copy(b, res.GetData())
+
 	return n, nil
 }
 
