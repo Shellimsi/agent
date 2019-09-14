@@ -45,10 +45,8 @@ func (c *ConnectionHub) Read(b []byte) (n int, err error) {
 	if err != nil {
 		panic(err)
 	}
-
 	switch res.GetErr() {
 	case hub.ConnectionErr_EOF:
-
 		return int(res.GetSize()), io.EOF
 	case hub.ConnectionErr_SHORTWRITE:
 		return 0, io.ErrShortWrite

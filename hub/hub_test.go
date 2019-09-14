@@ -1,10 +1,9 @@
 package hub
 
 import (
-	"bytes"
 	"io"
-	"math/rand"
 	"net"
+	"strings"
 	"testing"
 
 	hub "github.com/shellimsi/proto/hub"
@@ -17,17 +16,12 @@ var _ net.Conn = &ConnectionHub{}
 var _ hub.ConnectionClient = &ReadMock{}
 
 type ReadMock struct {
-	buffer *bytes.Buffer
+	buffer io.Reader
 }
 
 func (c *ReadMock) Read(ctx context.Context, in *hub.ReadRequest, opts ...grpc.CallOption) (res *hub.ReadResponse, err error) {
 	size := in.GetSize()
 	res = new(hub.ReadResponse)
-	res.TotalSize = uint32(c.buffer.Cap())
-	if int(size) >= c.buffer.Len() {
-		res.Err = hub.ConnectionErr_EOF
-		return
-	}
 
 	buff := make([]byte, size)
 	n, err := c.buffer.Read(buff)
@@ -42,14 +36,16 @@ func (c *ReadMock) Read(ctx context.Context, in *hub.ReadRequest, opts ...grpc.C
 			panic("not handled")
 		}
 	}
+
+	res.Data = buff
+
+	res.Err = hub.ConnectionErr_OK
 	return
 }
 
 func NewReadMock() *ReadMock {
-	randByt := make([]byte, 1024)
-	rand.Read(randByt)
 	return &ReadMock{
-		buffer: bytes.NewBuffer(randByt),
+		buffer: strings.NewReader("hello world"),
 	}
 }
 
@@ -60,20 +56,29 @@ func TestFirstRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	buf := make([]byte, 512)
+	buf := make([]byte, 3)
 	n, err := conn.Read(buf)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 512, n, "The two words should be the same.")
+	assert.Equal(t, len(buf), n, "The two words should be the same.")
+	assert.Equal(t, string(buf), "hel", "The two words should be the same.")
 
-	buf2 := make([]byte, 512)
+	buf2 := make([]byte, 8)
 	n2, err := conn.Read(buf2)
-	if err != io.EOF {
+
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 512, n2, "The two words should be the same.")
+	assert.Equal(t, len(buf2), n2, "The two words should be the same.")
+	assert.Equal(t, string(buf2), "lo world", "The two words should be the same.")
 
+	buf3 := make([]byte, 10)
+	n3, err := conn.Read(buf3)
+	if err != io.EOF {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 0, n3, "The two words should be the same.")
 }
