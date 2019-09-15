@@ -2,7 +2,7 @@ module github.com/shellimsi/agent
 
 require (
 	github.com/kr/pty v1.1.3
-	github.com/shellimsi/proto v0.0.10-0.20190908194100-d4d80c651f53
+	github.com/shellimsi/proto v0.0.11
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9

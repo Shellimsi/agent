@@ -19,7 +19,6 @@ type ConnectionHub struct {
 	connOnHub    hub.ConnectionClient
 	readTimeout  time.Duration
 	writeTimeout time.Duration
-	index        int64
 	sync.Mutex
 }
 
@@ -28,7 +27,6 @@ func New(connHub hub.ConnectionClient) (conn *ConnectionHub, err error) {
 		connOnHub:    connHub,
 		readTimeout:  defTimeout,
 		writeTimeout: defTimeout,
-		index:        0,
 	}, nil
 }
 
@@ -45,14 +43,13 @@ func (c *ConnectionHub) Read(b []byte) (n int, err error) {
 	if err != nil {
 		panic(err)
 	}
+
 	switch res.GetErr() {
-	case hub.ConnectionErr_EOF:
+	case hub.ReadErr_EOF:
 		return int(res.GetSize()), io.EOF
-	case hub.ConnectionErr_SHORTWRITE:
-		return 0, io.ErrShortWrite
-	case hub.ConnectionErr_UNEXPECTEDEOF:
+	case hub.ReadErr_UNEXPECTEDEOF:
 		return 0, io.ErrUnexpectedEOF
-	case hub.ConnectionErr_CLOSEDPIPE:
+	case hub.ReadErr_READ_CLOSEDPIPE:
 		return 0, io.ErrClosedPipe
 	}
 	n = copy(b, res.GetData())

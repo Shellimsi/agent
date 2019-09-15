@@ -19,6 +19,22 @@ type ReadMock struct {
 	buffer io.Reader
 }
 
+func (c *ReadMock) reset() {
+	c.buffer = strings.NewReader("")
+}
+
+func (c *ReadMock) Close(ctx context.Context, in *hub.CloseRequest, opts ...grpc.CallOption) (res *hub.CloseResponse, err error) {
+	return nil, nil
+}
+
+func (c *ReadMock) Register(ctx context.Context, in *hub.RegisterRequest, opts ...grpc.CallOption) (res *hub.RegisterResponse, err error) {
+	return nil, nil
+}
+
+func (c *ReadMock) Write(ctx context.Context, in *hub.WriteRequest, opts ...grpc.CallOption) (res *hub.WriteResponse, err error) {
+	return nil, nil
+}
+
 func (c *ReadMock) Read(ctx context.Context, in *hub.ReadRequest, opts ...grpc.CallOption) (res *hub.ReadResponse, err error) {
 	size := in.GetSize()
 	res = new(hub.ReadResponse)
@@ -30,16 +46,15 @@ func (c *ReadMock) Read(ctx context.Context, in *hub.ReadRequest, opts ...grpc.C
 	if err != nil {
 		switch err {
 		case io.EOF:
-			res.Err = hub.ConnectionErr_EOF
+			res.Err = hub.ReadErr_EOF
 			return res, nil
 		default:
 			panic("not handled")
 		}
 	}
-
 	res.Data = buff
+	res.Err = hub.ReadErr_READ_OK
 
-	res.Err = hub.ConnectionErr_OK
 	return
 }
 
@@ -62,8 +77,8 @@ func TestFirstRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(buf), n, "The two words should be the same.")
-	assert.Equal(t, string(buf), "hel", "The two words should be the same.")
+	assert.Equal(t, len(buf), n, "should be the same.")
+	assert.Equal(t, string(buf), "hel", "should be the same.")
 
 	buf2 := make([]byte, 8)
 	n2, err := conn.Read(buf2)
@@ -72,13 +87,13 @@ func TestFirstRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(buf2), n2, "The two words should be the same.")
-	assert.Equal(t, string(buf2), "lo world", "The two words should be the same.")
+	assert.Equal(t, len(buf2), n2, "should be the same.")
+	assert.Equal(t, string(buf2), "lo world", "should be the same.")
 
 	buf3 := make([]byte, 10)
 	n3, err := conn.Read(buf3)
 	if err != io.EOF {
 		t.Fatal(err)
 	}
-	assert.Equal(t, 0, n3, "The two words should be the same.")
+	assert.Equal(t, 0, n3, "should be the same.")
 }
