@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	uuid "github.com/satori/go.uuid"
 	hub "github.com/shellimsi/proto/hub"
 	"github.com/stretchr/testify/assert"
 	context "golang.org/x/net/context"
@@ -24,11 +25,16 @@ func (c *ReadMock) reset() {
 }
 
 func (c *ReadMock) Close(ctx context.Context, in *hub.CloseRequest, opts ...grpc.CallOption) (res *hub.CloseResponse, err error) {
-	return nil, nil
+	return &hub.CloseResponse{
+		Err: hub.ConnectionErr_OK,
+	}, nil
 }
 
 func (c *ReadMock) Register(ctx context.Context, in *hub.RegisterRequest, opts ...grpc.CallOption) (res *hub.RegisterResponse, err error) {
-	return nil, nil
+	return &hub.RegisterResponse{
+		AgentId:   in.GetAgentId(),
+		SessionId: uuid.NewV4().String(),
+	}, nil
 }
 
 func (c *ReadMock) Write(ctx context.Context, in *hub.WriteRequest, opts ...grpc.CallOption) (res *hub.WriteResponse, err error) {
@@ -54,7 +60,6 @@ func (c *ReadMock) Read(ctx context.Context, in *hub.ReadRequest, opts ...grpc.C
 	}
 	res.Data = buff
 	res.Err = hub.ReadErr_READ_OK
-
 	return
 }
 
@@ -67,7 +72,10 @@ func NewReadMock() *ReadMock {
 func TestFirstRead(t *testing.T) {
 	rMock := NewReadMock()
 	conn, err := New(rMock)
-
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = conn.Register()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,4 +104,9 @@ func TestFirstRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, 0, n3, "should be the same.")
+
+	err = conn.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
 }

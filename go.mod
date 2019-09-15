@@ -2,6 +2,7 @@ module github.com/shellimsi/agent
 
 require (
 	github.com/kr/pty v1.1.3
+	github.com/satori/go.uuid v1.2.0
 	github.com/shellimsi/proto v0.0.11
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
